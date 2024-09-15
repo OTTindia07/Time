@@ -1,0 +1,23 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "host": "IP Address",
+          "port": "Port",
+          "name": "Name"
+        },
+        "description": "Enter the details of your JR Touch Panel.",
+        "title": "JR Touch Panel"
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect, please try again",
+      "invalid_auth": "Invalid authentication",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "Device is already configured"
+    }
+  }
+}
