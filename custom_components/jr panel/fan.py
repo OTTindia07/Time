@@ -1,37 +1,46 @@
-from homeassistant.components.fan import FanEntity
-from .tcp_client import JRTouchPanelTCPClient
+"""Fan service for JR Touch Panel."""
+from homeassistant.components.fan import FanEntity, SUPPORT_SET_SPEED
+from homeassistant.util.percentage import (
+    int_states_in_range,
+    percentage_to_ranged_value,
+    ranged_value_to_percentage,
+)
 
-class JRTouchPanelFan(FanEntity):
+from .abstract_service import AbstractService
+
+class JRFan(FanEntity, AbstractService):
     """Representation of a JR Touch Panel fan."""
 
-    def __init__(self, client: JRTouchPanelTCPClient, device_id: int, name: str):
-        self._client = client
-        self._device_id = device_id
-        self._name = name
-        self._speed = 0
-
     @property
-    def name(self):
-        """Return the name of the fan."""
-        return self._name
+    def is_on(self):
+        """Return true if the fan is on."""
+        return self.accessory.entities[self.dp_id]["value"] > 0
 
     @property
     def percentage(self):
-        """Return the current speed of the fan as a percentage."""
-        return self._speed
+        """Return the current speed percentage."""
+        return ranged_value_to_percentage((0, 100), self.accessory.entities[self.dp_id]["value"])
+
+    @property
+    def speed_count(self):
+        """Return the number of speeds the fan supports."""
+        return int_states_in_range((0, 100))
 
     async def async_set_percentage(self, percentage):
-        """Set the fan speed."""
-        await self._client.set_fan_speed(self._device_id, percentage)
-        self._speed = percentage
-        self.async_write_ha_state()
+        """Set the speed of the fan."""
+        if percentage == 0:
+            await self.async_turn_off()
+        else:
+            await self.set_state(percentage_to_ranged_value((0, 100), percentage))
 
-    async def async_turn_on(self, speed=None, **kwargs):
-        """Turn on the fan."""
-        if speed is None:
-            speed = 25
-        await self.async_set_percentage(speed)
+    async def async_turn_on(self, **kwargs):
+        """Turn the fan on."""
+        await self.set_state(25)  # Set to 25% speed when turning on
 
     async def async_turn_off(self, **kwargs):
-        """Turn off the fan."""
-        await self.async_set_percentage(0)
+        """Turn the fan off."""
+        await self.set_state(0)
+
+    async def update(self):
+        """Update the fan state."""
+        self.accessory.entities[self.dp_id]["value"] = await self.accessory.get_state(self.dp_id)
