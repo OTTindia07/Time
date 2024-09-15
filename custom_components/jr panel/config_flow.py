@@ -1,6 +1,8 @@
 """Config flow for JR Touch Panel integration."""
 import logging
 from typing import Any
+from homeassistant import config_entries
+from homeassistant.core import callback
 
 import voluptuous as vol
 
