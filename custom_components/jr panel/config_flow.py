@@ -1,10 +1,10 @@
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
-from homeassistant.helpers import aiohttp_client
 
-from .const import DOMAIN
+from .const import DOMAIN  # Make sure DOMAIN is defined in const.py
 
+@config_entries.HANDLERS.register(DOMAIN)
 class JRPanelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for JR Panel."""
 
@@ -15,7 +15,7 @@ class JRPanelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle the initial step."""
         errors = {}
         if user_input is not None:
-            # TODO: Validate user input and connection to the JR Panel
+            # TODO: Add validation for connection to the JR panel here
             return self.async_create_entry(title=user_input["name"], data=user_input)
 
         data_schema = vol.Schema({
@@ -28,13 +28,14 @@ class JRPanelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
-        """Handle the options flow."""
+        """Return the options flow for this handler."""
         return JRPanelOptionsFlowHandler(config_entry)
 
 class JRPanelOptionsFlowHandler(config_entries.OptionsFlow):
-    """Handle options for JR Panel."""
+    """Handle JR Panel options."""
 
     def __init__(self, config_entry):
+        """Initialize JR Panel options flow."""
         self.config_entry = config_entry
 
     async def async_step_init(self, user_input=None):
