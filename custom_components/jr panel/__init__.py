@@ -1,42 +1,54 @@
+"""The JR Touch Panel integration."""
+import asyncio
 import logging
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.typing import ConfigType
+from homeassistant.exceptions import ConfigEntryNotReady
 
 from .const import DOMAIN
-from .tcp_client import JRTouchPanelTCPClient
+from .jr_accessory import JRAccessory
 
 _LOGGER = logging.getLogger(__name__)
 
-async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Set up the JR Touch Panel integration."""
+PLATFORMS = ["switch", "fan", "light", "cover"]
+
+async def async_setup(hass: HomeAssistant, config: dict):
+    """Set up the JR Touch Panel component."""
     hass.data.setdefault(DOMAIN, {})
     return True
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Set up JR Touch Panel from a config entry."""
-    host = entry.data.get("host")
-    port = entry.data.get("port", 4096)
-    name = entry.data.get("name")
+    accessory = JRAccessory(hass, entry.data)
 
-    _LOGGER.info(f"Setting up JR Touch Panel for {name} ({host}:{port})")
+    try:
+        await accessory.connect()
+    except Exception as err:
+        raise ConfigEntryNotReady from err
 
-    client = JRTouchPanelTCPClient(host, port)
-    await client.connect()
+    hass.data[DOMAIN][entry.entry_id] = accessory
 
-    # Storing the client for later use
-    hass.data[DOMAIN][entry.entry_id] = client
+    for platform in PLATFORMS:
+        hass.async_create_task(
+            hass.config_entries.async_forward_entry_setup(entry, platform)
+        )
 
-    # Setup the platforms for the entry (switch, fan, light, cover)
-    hass.config_entries.async_setup_platforms(entry, ["switch", "fan", "light", "cover"])
-    
     return True
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Unload a config entry."""
-    _LOGGER.info(f"Unloading JR Touch Panel for {entry.data['name']}")
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, ["switch", "fan", "light", "cover"])
+    unload_ok = all(
+        await asyncio.gather(
+            *[
+                hass.config_entries.async_forward_entry_unload(entry, platform)
+                for platform in PLATFORMS
+            ]
+        )
+    )
 
     if unload_ok:
-        hass.data[DOMAIN].pop(entry.entry_id)
+        accessory = hass.data[DOMAIN].pop(entry.entry_id)
+        await accessory.disconnect()
+
     return unload_ok
