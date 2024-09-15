@@ -1,0 +1,18 @@
+{
+  "title": "JR Touch Panel",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configure JR Touch Panel",
+        "data": {
+          "host": "Host",
+          "name": "Device Name",
+          "port": "Port"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Unable to connect to the JR Touch Panel. Please check your connection details."
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "domain": "jr_touch_panel",
+  "name": "JR Touch Panel",
+  "version": "1.0.0",
+  "config_flow": true,
+  "requirements": [],
+  "zeroconf": ["_jrtouch._tcp.local."],
+  "dependencies": [],
+  "documentation": "https://github.com/OTTindia07/OTTindia07-",
+  "codeowners": ["@yourgithubusername"]
+}
