@@ -2,22 +2,20 @@
   "config": {
     "step": {
       "user": {
+        "title": "JR Panel Configuration",
+        "description": "Please provide the connection details for your JR Panel.",
         "data": {
-          "host": "IP Address",
-          "port": "Port",
-          "name": "Name"
-        },
-        "description": "Enter the details of your JR Touch Panel.",
-        "title": "JR Touch Panel"
+          "host": "Panel Host (IP Address)",
+          "port": "Port (default 4096)",
+          "name": "Panel Name"
+        }
       }
     },
     "error": {
-      "cannot_connect": "Failed to connect, please try again",
-      "invalid_auth": "Invalid authentication",
-      "unknown": "Unexpected error"
+      "cannot_connect": "Failed to connect to the panel. Please check the IP address and port."
     },
     "abort": {
-      "already_configured": "Device is already configured"
+      "already_configured": "This panel is already configured."
     }
   }
 }
