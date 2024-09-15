@@ -1,50 +1,51 @@
-"""Config flow for JR Touch Panel integration."""
 import logging
-from typing import Any
-
-import voluptuous as vol
-
 from homeassistant import config_entries
-from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT
+from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
-
-from .const import DEFAULT_PORT, DOMAIN
-from .discovery import discover_jr_panels
-from .jr_accessory import JRAccessory
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-class JRPanelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for JR Touch Panel."""
+class JRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """Handle a config flow for JR Panel."""
 
     VERSION = 1
 
-    async def async_step_user(self, user_input=None):
+    async def async_step_user(self, user_input=None) -> FlowResult:
         """Handle the initial step."""
         errors = {}
-
         if user_input is not None:
             try:
-                accessory = JRAccessory(self.hass, user_input)
-                await accessory.connect()
-                return self.async_create_entry(title=user_input[CONF_NAME], data=user_input)
-            except Exception:  # pylint: disable=broad-except
-                _LOGGER.exception("Unexpected exception")
+                # Validate connection to JR Panel
+                host = user_input["host"]
+                port = user_input["port"]
+                name = user_input["name"]
+                # Create entry
+                return self.async_create_entry(title=name, data=user_input)
+            except Exception as e:
+                _LOGGER.error(f"Failed to connect: {e}")
                 errors["base"] = "cannot_connect"
 
-        return self.async_show_form(
-            step_id="user",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(CONF_HOST): str,
-                    vol.Required(CONF_NAME): str,
-                    vol.Optional(CONF_PORT, default=DEFAULT_PORT): int,
-                }
-            ),
-            errors=errors,
-        )
+        data_schema = {
+            "host": str,
+            "port": int,
+            "name": str,
+        }
 
-    async def async_step_zeroconf(self, discovery_info):
-        """Handle zeroconf discovery."""
-        # Implement zeroconf discovery logic here
-        pass
+        return self.async_show_form(step_id="user", data_schema=data_schema, errors=errors)
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry):
+        """Options flow handler."""
+        return JRPanelOptionsFlow(config_entry)
+
+class JRPanelOptionsFlow(config_entries.OptionsFlow):
+    """Handle the options flow."""
+
+    def __init__(self, config_entry):
+        self.config_entry = config_entry
+
+    async def async_step_init(self, user_input=None):
+        """Handle the initial step."""
+        return self.async_show_form(step_id="init", data_schema={})
