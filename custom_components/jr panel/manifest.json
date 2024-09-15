@@ -1,11 +1,11 @@
 {
   "domain": "jr_panel",
-  "name": "JR Panel",
+  "name": "JR Touch Panel",
   "config_flow": true,
-  "documentation": "https://github.com/OTTindia07/Meet/",
+  "documentation": "https://www.example.com",
   "requirements": [],
   "zeroconf": ["_jrtouch._tcp.local."],
   "dependencies": [],
-  "codeowners": ["@Xusmaster01"],
+  "codeowners": ["@yourgithubusername"],
   "version": "0.1.0"
 }
