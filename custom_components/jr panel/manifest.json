@@ -1,6 +1,6 @@
 {
   "domain": "jr_panel",
-  "name": "JR Touch Panel",
+  "name": "JR Panel",
   "config_flow": true,
   "documentation": "https://github.com/OTTindia07/Meet/",
   "requirements": [],
