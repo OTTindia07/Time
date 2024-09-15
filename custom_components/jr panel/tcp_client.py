@@ -1,7 +1,6 @@
 import asyncio
-import logging
 import socket
-from typing import Optional
+import logging
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -11,7 +10,7 @@ class JRTouchPanelTCPClient:
     def __init__(self, host: str, port: int):
         self.host = host
         self.port = port
-        self.client: Optional[socket.socket] = None
+        self.client = None
 
     async def connect(self):
         """Establish a connection to the JR Touch Panel."""
@@ -21,7 +20,7 @@ class JRTouchPanelTCPClient:
 
     async def send_command(self, device_id: int, value: int):
         """Send a command to the JR Touch Panel."""
-        command = f'{{"set":{{"dp_id":{device_id},"value":{value}}}}}\r\n'
+        command = f'{{"set":{{"dp_id":{device_id},"value":{value}}}}}'
         _LOGGER.debug(f"Sending command: {command}")
         self.client.sendall(command.encode())
 
