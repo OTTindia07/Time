@@ -3,19 +3,13 @@
     "step": {
       "user": {
         "title": "JR Panel Configuration",
-        "description": "Please provide the connection details for your JR Panel.",
+        "description": "Please enter the details of your JR Panel device.",
         "data": {
-          "host": "Panel Host (IP Address)",
-          "port": "Port (default 4096)",
-          "name": "Panel Name"
+          "host": "Host",
+          "port": "Port",
+          "name": "Name"
         }
       }
-    },
-    "error": {
-      "cannot_connect": "Failed to connect to the panel. Please check the IP address and port."
-    },
-    "abort": {
-      "already_configured": "This panel is already configured."
     }
   }
 }
