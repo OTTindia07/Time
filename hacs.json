@@ -1,6 +1,8 @@
 {
-    "name": "JR Panel",
-    "render_readme": true,
-    "domains": ["light", "fan"],
-    "iot_class": "Local Polling"
+  "name": "JR Panel",
+  "description": "A custom integration for JR Touch Panel devices.",
+  "render_readme": true,
+  "domains": ["switch", "fan", "light", "cover"],
+  "country": "US",
+  "homeassistant": "2021.1.0"
 }
