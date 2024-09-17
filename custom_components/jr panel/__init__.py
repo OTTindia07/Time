@@ -1,33 +1,38 @@
 """The JR Touch Panel integration."""
 import asyncio
 import logging
+from typing import Any, Dict
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 
-from .const import DOMAIN
-from .jr_accessory import JRAccessory
+from .const import DOMAIN, DEFAULT_PORT
+from .panel import JRTouchPanel
 
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = ["switch", "fan", "light", "cover"]
 
-async def async_setup(hass: HomeAssistant, config: dict):
+async def async_setup(hass: HomeAssistant, config: Dict[str, Any]) -> bool:
     """Set up the JR Touch Panel component."""
-    hass.data.setdefault(DOMAIN, {})
+    hass.data[DOMAIN] = {}
     return True
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up JR Touch Panel from a config entry."""
-    accessory = JRAccessory(hass, entry.data)
+    host = entry.data[CONF_HOST]
+    port = entry.data.get(CONF_PORT, DEFAULT_PORT)
+    name = entry.data.get(CONF_NAME, f"JR Touch Panel ({host})")
 
+    panel = JRTouchPanel(hass, host, port, name)
     try:
-        await accessory.connect()
-    except Exception as err:
-        raise ConfigEntryNotReady from err
+        await panel.async_connect()
+    except asyncio.TimeoutError:
+        raise ConfigEntryNotReady(f"Timeout connecting to panel at {host}")
 
-    hass.data[DOMAIN][entry.entry_id] = accessory
+    hass.data[DOMAIN][entry.entry_id] = panel
 
     for platform in PLATFORMS:
         hass.async_create_task(
@@ -36,7 +41,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     return True
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     unload_ok = all(
         await asyncio.gather(
@@ -48,7 +53,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     )
 
     if unload_ok:
-        accessory = hass.data[DOMAIN].pop(entry.entry_id)
-        await accessory.disconnect()
+        hass.data[DOMAIN].pop(entry.entry_id)
 
     return unload_ok
