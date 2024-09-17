@@ -1,11 +1,12 @@
 {
-  "domain": "jr_panel",
+  "domain": "jr_touch_panel",
   "name": "JR Touch Panel",
   "config_flow": true,
-  "documentation": "https://www.example.com",
+  "documentation": "https://github.com/OTTindia07/Time/",
   "requirements": [],
-  "zeroconf": ["_jrtouch._tcp.local."],
+  "ssdp": [],
+  "zeroconf": [],
+  "homekit": {},
   "dependencies": [],
-  "codeowners": ["@yourgithubusername"],
-  "version": "0.1.0"
+  "codeowners": ["@yourgithubusername"]
 }
