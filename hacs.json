@@ -1,8 +1,9 @@
 {
-  "name": "JR Panel",
-  "description": "A custom integration for JR Touch Panel devices.",
-  "render_readme": true,
-  "domains": ["switch", "fan", "light", "cover"],
-  "country": "US",
-  "homeassistant": "2021.1.0"
+  "name": "JR Touch Panel",
+  "content_in_root": false,
+  "domains": [
+    "jr_panel"
+  ],
+  "homeassistant": "2023.0.0",
+  "render_readme": true
 }
