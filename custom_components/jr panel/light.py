@@ -1,24 +1,32 @@
-"""Light service for JR Touch Panel."""
 from homeassistant.components.light import LightEntity
+from .tcp_client import JRTouchPanelTCPClient
 
-from .abstract_service import AbstractService
+class JRTouchPanelDimmer(LightEntity):
+    """Representation of a dimmable light controlled by the JR Touch Panel."""
 
-class JRLight(LightEntity, AbstractService):
-    """Representation of a JR Touch Panel light."""
+    def __init__(self, client: JRTouchPanelTCPClient, device_id: int, name: str):
+        self.client = client
+        self.device_id = device_id
+        self._name = name
+        self._brightness = 0
 
     @property
-    def is_on(self):
-        """Return true if the light is on."""
-        return self.accessory.entities[self.dp_id]["value"]
+    def name(self):
+        return self._name
+
+    @property
+    def brightness(self):
+        return self._brightness
 
     async def async_turn_on(self, **kwargs):
-        """Turn the light on."""
-        await self.set_state(True)
+        """Turn the dimmer on."""
+        brightness = kwargs.get("brightness", 255)
+        await self.client.send({"device_id": self.device_id, "brightness": brightness})
+        self._brightness = brightness
+        self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs):
-        """Turn the light off."""
-        await self.set_state(False)
-
-    async def update(self):
-        """Update the light state."""
-        self.accessory.entities[self.dp_id]["value"] = await self.accessory.get_state(self.dp_id)
+        """Turn the dimmer off."""
+        await self.client.send({"device_id": self.device_id, "brightness": 0})
+        self._brightness = 0
+        self.async_write_ha_state()
